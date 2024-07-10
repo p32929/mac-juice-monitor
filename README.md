@@ -9,7 +9,6 @@ Introducing **MacJuiceMonitor** – your essential tool for keeping track of all
 - **Real-Time Monitoring**: View the battery levels of all your connected Bluetooth devices at a glance.
 - **Menu Bar Integration**: Seamlessly integrated into the macOS menu bar (the top-right section), MacJuiceMonitor ensures that battery information is always easily accessible without cluttering your screen.
 - **Device Compatibility**: Supports a wide range of Bluetooth devices, including headphones, keyboards, mice, and more.
-- **Custom Notifications**: Receive alerts when a device's battery is running low, so you're never caught off guard.
 - **User-Friendly Interface**: Simple, intuitive design that blends perfectly with macOS aesthetics.
 - **Lightweight and Efficient**: Minimal system resource usage ensures your Mac runs smoothly while keeping you informed.
 
