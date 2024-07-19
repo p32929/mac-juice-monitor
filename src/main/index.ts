@@ -1,6 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain, Tray, nativeImage, NativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import fs from 'fs'
 import appIconPath from '../../resources/icon_512x512.png?asset'
 import mouseIconPath from '../../resources/mouse.png?asset'
 import keyboardIconPath from '../../resources/keyboard.png?asset'
@@ -10,7 +11,11 @@ import greenMouseIconPath from '../../resources/green_mouse.png?asset'
 import greenKeyboardIconPath from '../../resources/green_keyboard.png?asset'
 import greenHeadphonesIconPath from '../../resources/green_headphones.png?asset'
 import greenBluetoothIconPath from '../../resources/green_bluetooth.png?asset'
-import { getBatteryInfo } from './battery' // Assume you have a function to get battery info
+import redMouseIconPath from '../../resources/red_mouse.png?asset'
+import redKeyboardIconPath from '../../resources/red_keyboard.png?asset'
+import redHeadphonesIconPath from '../../resources/red_headphones.png?asset'
+import redBluetoothIconPath from '../../resources/red_bluetooth.png?asset'
+import { getBatteryInfo } from './battery'
 import { BatteryInfo, Constants } from '../renderer/src/globals'
 
 interface Trays {
@@ -19,6 +24,25 @@ interface Trays {
 
 let trays: Trays = {}
 let mainWindow: BrowserWindow | null = null
+let sliderValue: number = 0
+const minimumBatteryDefault = 20 //%
+
+const sliderValueFilePath = join(app.getPath('userData'), 'slider-value.json')
+
+function saveSliderValue(value: number) {
+  fs.writeFileSync(sliderValueFilePath, JSON.stringify({ value }))
+}
+
+function loadSliderValue() {
+  const isFileExists = fs.existsSync(sliderValueFilePath)
+  if (isFileExists) {
+    const data = fs.readFileSync(sliderValueFilePath, 'utf-8')
+    const parsed = JSON.parse(data)
+    sliderValue = parsed.value ?? minimumBatteryDefault
+  } else {
+    sliderValue = minimumBatteryDefault
+  }
+}
 
 function enableAutoLaunch(): void {
   app.setLoginItemSettings({
@@ -37,41 +61,55 @@ function exitApp() {
   process.exit()
 }
 
-// function disableAutoLaunch(): void {
-//   app.setLoginItemSettings({
-//     openAtLogin: false
-//   })
-// }
-
 if (!is.dev) {
   enableAutoLaunch()
 }
 
-function getIcon(deviceName: string, charging: boolean): NativeImage {
-  if (deviceName.includes('Mouse')) {
-    return nativeImage.createFromPath(charging ? greenMouseIconPath : mouseIconPath)
-  } else if (deviceName.includes('Keyboard')) {
-    return nativeImage.createFromPath(charging ? greenKeyboardIconPath : keyboardIconPath)
-  } else if (
-    deviceName.includes('Headphone') ||
-    deviceName.includes('Headset') ||
-    deviceName.includes('AirPods')
-  ) {
-    return nativeImage.createFromPath(charging ? greenHeadphonesIconPath : headphonesIconPath)
+function getIcon(deviceName: string, percentage: number, charging: boolean): NativeImage {
+  let iconPath: string
+
+  if (percentage < sliderValue) {
+    if (deviceName.includes('Mouse')) {
+      iconPath = redMouseIconPath
+    } else if (deviceName.includes('Keyboard')) {
+      iconPath = redKeyboardIconPath
+    } else if (
+      deviceName.includes('Headphone') ||
+      deviceName.includes('Headset') ||
+      deviceName.includes('AirPods')
+    ) {
+      iconPath = redHeadphonesIconPath
+    } else {
+      iconPath = redBluetoothIconPath
+    }
   } else {
-    return nativeImage.createFromPath(charging ? greenBluetoothIconPath : bluetoothIconPath) // Default icon if no specific match
+    if (deviceName.includes('Mouse')) {
+      iconPath = charging ? greenMouseIconPath : mouseIconPath
+    } else if (deviceName.includes('Keyboard')) {
+      iconPath = charging ? greenKeyboardIconPath : keyboardIconPath
+    } else if (
+      deviceName.includes('Headphone') ||
+      deviceName.includes('Headset') ||
+      deviceName.includes('AirPods')
+    ) {
+      iconPath = charging ? greenHeadphonesIconPath : headphonesIconPath
+    } else {
+      iconPath = charging ? greenBluetoothIconPath : bluetoothIconPath
+    }
   }
+
+  return nativeImage.createFromPath(iconPath)
 }
 
-function createTray(deviceName: string, charging: boolean): Tray {
-  const tray = new Tray(getIcon(deviceName, charging))
+function createTray(deviceName: string, percentage: number, charging: boolean): Tray {
+  const tray = new Tray(getIcon(deviceName, percentage, charging))
   tray.setTitle(`${deviceName}: ...`)
   return tray
 }
 
 function updateTray(deviceName: string, percentage: string, charging: boolean): void {
   if (trays[deviceName]) {
-    const icon = getIcon(deviceName, charging)
+    const icon = getIcon(deviceName, parseInt(percentage), charging)
     trays[deviceName].setImage(icon)
     trays[deviceName].setTitle(`${percentage}%`)
   } else {
@@ -135,18 +173,31 @@ app.whenReady().then(() => {
     return getBatteryInfo()
   })
 
+  ipcMain.handle('get-slider-value', () => {
+    return sliderValue
+  })
+
+  ipcMain.handle('set-slider-value', (_, value: number) => {
+    sliderValue = value
+    saveSliderValue(value)
+  })
+
   createWindow()
 
   const updateBatteryInfo = () => {
-    const batteryInfo: BatteryInfo = getBatteryInfo()
+    const batteryInfo: Record<string, BatteryInfo> = getBatteryInfo()
 
     Object.keys(batteryInfo).forEach((device) => {
       const charging = !batteryInfo[device].discharging
       if (!trays[device]) {
-        trays[device] = createTray(device, charging)
+        trays[device] = createTray(
+          device,
+          parseInt(batteryInfo[device].percentage ?? '0'),
+          charging
+        )
       }
       if (batteryInfo[device].percentage) {
-        updateTray(device, batteryInfo[device].percentage, charging)
+        updateTray(device, batteryInfo[device].percentage ?? '0', charging)
       }
     })
 
@@ -158,6 +209,7 @@ app.whenReady().then(() => {
     })
   }
 
+  loadSliderValue()
   updateBatteryInfo()
   setInterval(updateBatteryInfo, Constants.INTERVAL_MS)
 
