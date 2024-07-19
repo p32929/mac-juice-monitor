@@ -22,9 +22,9 @@ Stay ahead of your device's power needs with MacJuiceMonitor, the ultimate compa
 
 # Screenshots
 
-![Screenshot 2024-07-10 at 10 35 23 AM](https://github.com/p32929/mac-juice-monitor/assets/6418354/37e5bdc4-b8c0-45ee-a6b8-8b9d99867a91)
+![Screenshot 2024-07-10 at 10 35 23 AM](https://github.com/user-attachments/assets/2a58378e-0468-471b-a67e-27308586fca3)
 
-![Screenshot 2024-07-10 at 10 35 23 AM - Copy](https://github.com/p32929/mac-juice-monitor/assets/6418354/37075625-e258-473f-92bc-fec6713c1f7b)
+![Screenshot 2024-07-10 at 10 35 23 AM - Copy](https://github.com/user-attachments/assets/5d05e452-b298-4833-90dc-c4f4dde517ce)
 
 # How to use
 
