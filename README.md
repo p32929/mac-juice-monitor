@@ -65,3 +65,13 @@ From here: https://www.flaticon.com/free-icon/wireless-charger_4978408?term=batt
 
 # Contribution
 Before making pull requests, please open an issue. Thanks
+
+# Issues
+* if the app is not auto starting at login:
+- open settings
+- search `Open at Login`
+- in the `Open at Login` items, add `mac-juice-monitor`
+
+if still not auto starting
+- remove `mac-juice-monitor` from the `Open at Login` items
+- add `mac-juice-monitor` again
