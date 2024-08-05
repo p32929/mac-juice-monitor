@@ -68,33 +68,49 @@ if (!is.dev) {
 function getIcon(deviceName: string, percentage: number, charging: boolean): NativeImage {
   let iconPath: string
 
-  if (percentage < sliderValue) {
+  if (charging) {
     if (deviceName.includes('Mouse')) {
-      iconPath = redMouseIconPath
+      iconPath = greenMouseIconPath
     } else if (deviceName.includes('Keyboard')) {
-      iconPath = redKeyboardIconPath
+      iconPath = greenKeyboardIconPath
     } else if (
       deviceName.includes('Headphone') ||
       deviceName.includes('Headset') ||
       deviceName.includes('AirPods')
     ) {
-      iconPath = redHeadphonesIconPath
+      iconPath = greenHeadphonesIconPath
     } else {
-      iconPath = redBluetoothIconPath
+      iconPath = greenBluetoothIconPath
     }
   } else {
-    if (deviceName.includes('Mouse')) {
-      iconPath = charging ? greenMouseIconPath : mouseIconPath
-    } else if (deviceName.includes('Keyboard')) {
-      iconPath = charging ? greenKeyboardIconPath : keyboardIconPath
-    } else if (
-      deviceName.includes('Headphone') ||
-      deviceName.includes('Headset') ||
-      deviceName.includes('AirPods')
-    ) {
-      iconPath = charging ? greenHeadphonesIconPath : headphonesIconPath
+    if (percentage < sliderValue) {
+      if (deviceName.includes('Mouse')) {
+        iconPath = redMouseIconPath
+      } else if (deviceName.includes('Keyboard')) {
+        iconPath = redKeyboardIconPath
+      } else if (
+        deviceName.includes('Headphone') ||
+        deviceName.includes('Headset') ||
+        deviceName.includes('AirPods')
+      ) {
+        iconPath = redHeadphonesIconPath
+      } else {
+        iconPath = redBluetoothIconPath
+      }
     } else {
-      iconPath = charging ? greenBluetoothIconPath : bluetoothIconPath
+      if (deviceName.includes('Mouse')) {
+        iconPath = mouseIconPath
+      } else if (deviceName.includes('Keyboard')) {
+        iconPath = keyboardIconPath
+      } else if (
+        deviceName.includes('Headphone') ||
+        deviceName.includes('Headset') ||
+        deviceName.includes('AirPods')
+      ) {
+        iconPath = headphonesIconPath
+      } else {
+        iconPath = bluetoothIconPath
+      }
     }
   }
 
