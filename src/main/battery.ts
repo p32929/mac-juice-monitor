@@ -75,16 +75,12 @@ function parseBluetoothOutput(output: string): Record<string, BatteryInfo> {
   const deviceAddressRegex = /Address: ([\w:]+)/
   const vendorIDRegex = /Vendor ID: (0x[\w]+)/
   const productIDRegex = /Product ID: (0x[\w]+)/
-  const firmwareVersionRegex = /Firmware Version: ([\w.]+)/
-  const servicesRegex = /Services: (.+)/
 
   deviceSections.forEach((section) => {
     const nameMatch = section.match(deviceNameRegex)
     const addressMatch = section.match(deviceAddressRegex)
     const vendorIDMatch = section.match(vendorIDRegex)
     const productIDMatch = section.match(productIDRegex)
-    const firmwareVersionMatch = section.match(firmwareVersionRegex)
-    const servicesMatch = section.match(servicesRegex)
 
     if (nameMatch && addressMatch && vendorIDMatch && productIDMatch) {
       const key = `${vendorIDMatch[1]}:${productIDMatch[1]}`
