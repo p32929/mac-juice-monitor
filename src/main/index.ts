@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow, ipcMain, Tray, nativeImage, NativeImage } from 'electron'
+import { app, shell, BrowserWindow, ipcMain, Menu, Tray, nativeImage, NativeImage } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import fs from 'fs'
@@ -120,6 +120,22 @@ function getIcon(deviceName: string, percentage: number, charging: boolean): Nat
 function createTray(deviceName: string, percentage: number, charging: boolean): Tray {
   const tray = new Tray(getIcon(deviceName, percentage, charging))
   tray.setTitle(`${deviceName}: ...`)
+  tray.setContextMenu(
+    Menu.buildFromTemplate([
+      { label: 'Settings', click: () => mainWindow?.show() },
+      { type: 'separator' },
+      {
+        label: 'Support this app ☕',
+        click: () => shell.openExternal('https://www.buymeacoffee.com/p32929')
+      },
+      {
+        label: 'Need a custom build?',
+        click: () => shell.openExternal('https://p32929.github.io/hire/')
+      },
+      { type: 'separator' },
+      { label: 'Quit', click: () => exitApp() }
+    ])
+  )
   return tray
 }
 
